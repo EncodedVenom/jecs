@@ -27,18 +27,16 @@ local world = World.new()
 local player = world:entity()
 local opponent = world:entity()
 
-local Health = world:component()
-local Position = world:component()
 -- Notice how components can just be entities as well?
 -- It allows you to model relationships easily!
+local Health = world:entity()
+local Position = world:entity()
 local Damage = world:entity()
 local DamagedBy = world:entity()
 
 world:set(player, Health, 100)
-world:set(player, Damage, 8)
 world:set(player, Position, Vector3.new(0, 5, 0))
 
-world:set(opponent, Health, 100)
 world:set(opponent, Damage, 21)
 world:set(opponent, Position, Vector3.new(0, 5, 3))
 
