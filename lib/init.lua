@@ -822,7 +822,7 @@ function World.query(world: World, ...: i53): Query
 	return setmetatable({}, preparedQuery) :: any
 end
 
-function World.__iter(world: World): () -> (number?, unknown?)
+function World.__iter(world: World)
 	local dense = world.entityIndex.dense
 	local sparse = world.entityIndex.sparse
 	local last
@@ -855,7 +855,7 @@ function World.__iter(world: World): () -> (number?, unknown?)
 	end
 end
 
-return table.freeze({
+return {
 	World = World;
 
 	OnAdd = ON_ADD;
@@ -875,4 +875,4 @@ return table.freeze({
 
 	pair = ECS_PAIR,
 	getAlive = getAlive,
-})
+}
