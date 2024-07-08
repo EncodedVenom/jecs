@@ -262,7 +262,7 @@ local function hash(arr: { number }): string
 	return table.concat(arr, "_")
 end
 
-local function ensure_component_record(
+local function ensure_id_record(
 	id_index: ComponentIndex,
 	id: number
 ): ArchetypeMap
@@ -295,7 +295,7 @@ local function archetype_of(world: any, types: { i24 }, prev: Archetype?): Arche
 
 	local records = {}
 	for i, id in types do
-		local idr = ensure_component_record(id_index, id)
+		local idr = ensure_id_record(id_index, id)
 		idr.cache[archetype_id] = i
 		idr.size += 1
 		records[id] = i
@@ -306,8 +306,8 @@ local function archetype_of(world: any, types: { i24 }, prev: Archetype?): Arche
 			local r = ECS_PAIR(relation, EcsWildcard)
 			local o = ECS_PAIR(EcsWildcard, obj)
 
-			local idr_r = ensure_component_record(id_index, r)
-			local idr_o = ensure_component_record(id_index, o)
+			local idr_r = ensure_id_record(id_index, r)
+			local idr_o = ensure_id_record(id_index, o)
 
 			records[r] = i
 			records[o] = i
