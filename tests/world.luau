@@ -242,7 +242,7 @@ TEST("world", function()
 		local world = jecs.World.new()
 		local e = world:entity()
 		CHECK(ECS_ID(e) == 1 + jecs.Rest)
-		CHECK(getAlive(world.entityIndex, ECS_ID(e)) == e)
+		CHECK(getAlive(world.entity_index, ECS_ID(e)) == e)
 		CHECK(ECS_GENERATION(e) == 0) -- 0
 		e = ECS_GENERATION_INC(e)
 		CHECK(ECS_GENERATION(e) == 1) -- 1
@@ -259,8 +259,8 @@ TEST("world", function()
 		local pair = ECS_PAIR(e2, e3)
 		CHECK(IS_PAIR(pair) == true)
 
-		CHECK(ECS_PAIR_RELATION(world.entityIndex, pair) == e2)
-		CHECK(ECS_PAIR_OBJECT(world.entityIndex, pair) == e3)
+		CHECK(ECS_PAIR_RELATION(world.entity_index, pair) == e2)
+		CHECK(ECS_PAIR_OBJECT(world.entity_index, pair) == e3)
 	end
 
 	do CASE("should allow querying for relations")

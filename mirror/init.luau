@@ -306,7 +306,7 @@ local function ensureRecord(entityIndex, entityId: i53): Record
 end
 
 function World.set(world: World, entityId: i53, componentId: i53, data: unknown)
-	local record = ensureRecord(world.entityIndex, entityId)
+	local record = ensureRecord(entity_index, entityId)
 	local from = record.archetype
 	local to = archetypeTraverseAdd(world, componentId, from)
 
@@ -321,7 +321,7 @@ function World.set(world: World, entityId: i53, componentId: i53, data: unknown)
 
 	if from then
 		-- If there was a previous archetype, then the entity needs to move the archetype
-		moveEntity(world.entityIndex, entityId, record, to)
+		moveEntity(entity_index, entityId, record, to)
 	else
 		if #to.types > 0 then
 			-- When there is no previous archetype it should create the archetype
@@ -350,7 +350,7 @@ local function archetypeTraverseRemove(world: World, componentId: i53, archetype
 end
 
 function World.remove(world: World, entityId: i53, componentId: i53)
-	local entityIndex = world.entityIndex
+	local entityIndex = entity_index
 	local record = ensureRecord(entityIndex, entityId)
 	local sourceArchetype = record.archetype
 	local destinationArchetype = archetypeTraverseRemove(world, componentId, sourceArchetype)
@@ -374,7 +374,7 @@ end
 
 function World.get(world: World, entityId: i53, a: i53, b: i53?, c: i53?, d: i53?, e: i53?)
 	local id = entityId
-	local record = world.entityIndex[id]
+	local record = entity_index[id]
 	if not record then
 		return nil
 	end
@@ -588,7 +588,7 @@ function World.entity(world: World)
 end
 
 function World.delete(world: World, entityId: i53)
-	local entityIndex = world.entityIndex
+	local entityIndex = entity_index
 	local record = entityIndex[entityId]
 	moveEntity(entityIndex, entityId, record, world.ROOT_ARCHETYPE)
 	-- Since we just appended an entity to the ROOT_ARCHETYPE we have to remove it from
