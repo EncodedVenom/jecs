@@ -71,7 +71,8 @@ local EcsOnSet 				= HI_COMPONENT_ID + 3
 local EcsWildcard 			= HI_COMPONENT_ID + 4
 local EcsChildOf 			= HI_COMPONENT_ID + 5
 local EcsComponent  		= HI_COMPONENT_ID + 6
-local EcsRest 				= HI_COMPONENT_ID + 7
+local EcsName               = HI_COMPONENT_ID + 7
+local EcsRest 				= HI_COMPONENT_ID + 8
 
 local ECS_PAIR_FLAG 		= 0x8
 local ECS_ID_FLAGS_MASK 	= 0x10
@@ -497,7 +498,7 @@ local function world_set(world: World, entityId: i53, componentId: i53, data: un
 	to.columns[archetypeRecord][record.row] = data
 end
 
-local function world_component(world: World): i53
+local function world_component(world: World, info): i53
 	local componentId = world.nextComponentId + 1
 	if componentId > HI_COMPONENT_ID then
 		-- IDs are partitioned into ranges because component IDs are not nominal,
@@ -507,6 +508,11 @@ local function world_component(world: World): i53
 	world.nextComponentId = componentId
 	local id = entity_index_new_id(world.entityIndex, componentId)
 	world_add(world, id, EcsComponent)
+	local name = info and info.name
+	if not name then
+	    name = `{debug.info(2, "s")}@{debug.info(2, "l")}`
+	end
+	world_set(world, id, EcsName, name)
 	return id
 end
 
@@ -1325,6 +1331,7 @@ return {
 	Component = EcsComponent,
 	Wildcard = EcsWildcard :: Entity,
 	w = EcsWildcard :: Entity,
+	Name = EcsName :: Entity,
 	Rest = EcsRest :: Entity,
 
 	pair = (ECS_PAIR :: any) :: <R, T>(pred: Entity, obj: Entity) -> number,
