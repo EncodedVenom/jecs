@@ -444,55 +444,27 @@ local function archetype_traverse_add(world: World, id: i53, from: Archetype): A
 	return add
 end
 
-local world_get: (world: World, entityId: i53, a: i53, b: i53?, c: i53?, d: i53?, e: i53?) -> (...any)
-    do
-        -- Keeping the function as small as possible to enable inlining
-        local records
-        local columns
-        local row
+-- Keeping the function as small as possible to enable inlining
+local function world_get(world: World, entity: i53, id: i53): ...any
+	local record = world.entityIndex.sparse[entity]
+	if not record then
+		return nil
+	end
 
-        local function fetch(id): any
-        	local tr = records[id]
+	local archetype = record.archetype
+	if not archetype then
+		return nil
+	end
 
-        	if not tr then
-        		return nil
-        	end
+	local tr = archetype.records[id]
+	if not tr then 
+		return nil
+	end
 
-        	return columns[tr.column][row]
-        end
+	return archetype.columns[tr.column][record.row]
+end
 
-        function world_get(world: World, entity: i53, a: i53, b: i53?, c: i53?, d: i53?, e: i53?): ...any
-        	local record = world.entityIndex.sparse[entity]
-        	if not record then
-        		return nil
-        	end
-
-        	local archetype = record.archetype
-        	if not archetype then
-        	   return nil
-        	end
-
-        	records = archetype.records
-        	columns = archetype.columns
-        	row = record.row
-
-        	local va = fetch(a)
-
-        	if not b then
-        		return va
-        	elseif not c then
-        		return va, fetch(b)
-        	elseif not d then
-                return va, fetch(b), fetch(c)
-        	elseif not e then
-                return va, fetch(b), fetch(c), fetch(d)
-        	else
-        		error("args exceeded")
-        	end
-        end
-    end
-
-local function notify_hook(world: World, hook_id: number, id: i53, entity: i53, data: any?)
+local function invoke_hook(world: World, hook_id: number, id: i53, entity: i53, data: any?)
     local hook = world_get(world, id, hook_id)
     if hook then
         hook(entity, data)
@@ -515,7 +487,7 @@ local function world_add(world: World, entity: i53, id: i53)
 		end
 	end
 
-	notify_hook(world, EcsOnAdd, id, entity)
+	invoke_hook(world, EcsOnAdd, id, entity)
 end
 
 -- Symmetric like `World.add` but idempotent
@@ -529,7 +501,7 @@ local function world_set(world: World, entity: i53, id: i53, data: unknown)
 		-- and just set the data directly.
 		local tr = to.records[id]
 		from.columns[tr.column][record.row] = data
-		notify_hook(world, EcsOnSet, id, entity, data)
+		invoke_hook(world, EcsOnSet, id, entity, data)
 		return
 	end
 
@@ -546,7 +518,7 @@ local function world_set(world: World, entity: i53, id: i53, data: unknown)
 	local tr = to.records[id]
 	to.columns[tr.column][record.row] = data
 
-	notify_hook(world, EcsOnAdd, id, entity, data)
+	invoke_hook(world, EcsOnAdd, id, entity, data)
 end
 
 local function world_component(world: World): i53
@@ -582,7 +554,7 @@ local function archetype_traverse_remove(world: World, id: i53, from: Archetype)
 end
 
 local function world_remove(world: World, entity: i53, id: i53)
-    notify_hook(world, EcsOnRemove, id, entity)
+    invoke_hook(world, EcsOnRemove, id, entity)
 
 	local entity_index = world.entityIndex
 	local record = entity_index.sparse[entity]
@@ -683,7 +655,7 @@ end
 
 
 
-local function world_has(world: World, entity: number, ...: i53): boolean
+local function world_has(world: World, entity: number, id: i53): boolean
    	local record = world.entityIndex.sparse[entity]
    	if not record then
   		return false
@@ -696,13 +668,7 @@ local function world_has(world: World, entity: number, ...: i53): boolean
 
     local records = archetype.records
 
-    for i = 1, select("#", ...) do
-        if not records[select(i, ...)] then
-            return false
-        end
-    end
-
-    return true
+	return archetype.records[id] ~= nil
 end
 
 type Item = () -> (number, ...any)
